@@ -1,0 +1,26 @@
+;
+; Zone {{ dns_domain }}
+; Généré par Ansible le {{ ansible_date_time.iso8601 }}
+;
+$TTL    604800
+@       IN      SOA     ns1.{{ dns_domain }}. admin.{{ dns_domain }}. (
+                              {{ ansible_date_time.epoch }}         ; Serial (timestamp)
+                         604800         ; Refresh (1 semaine)
+                          86400         ; Retry (1 jour)
+                        2419200         ; Expire (4 semaines)
+                         604800 )       ; Negative Cache TTL (1 semaine)
+;
+; Serveurs de noms
+@       IN      NS      ns1.{{ dns_domain }}.
+
+; Enregistrements A
+{% for record in dns_records %}
+{{ "%-15s"|format(record.name) }} IN      A       {{ record.ip }}
+{% endfor %}
+
+{% if dns_cname_records is defined and dns_cname_records|length > 0 %}
+; Alias CNAME
+{% for cname in dns_cname_records %}
+{{ "%-15s"|format(cname.name) }} IN      CNAME   {{ cname.target }}.{{ dns_domain }}.
+{% endfor %}
+{% endif %}

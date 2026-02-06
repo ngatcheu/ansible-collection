@@ -1,0 +1,89 @@
+---
+- name: Installer Bind9 et utilitaires
+  apt:
+    name:
+      - bind9
+      - bind9utils
+      - bind9-doc
+      - dnsutils
+    state: present
+    update_cache: yes
+  become: yes
+
+- name: Créer le répertoire des zones
+  file:
+    path: /etc/bind/zones
+    state: directory
+    owner: bind
+    group: bind
+    mode: '0755'
+  become: yes
+
+- name: Configurer named.conf.options
+  template:
+    src: named.conf.options.j2
+    dest: /etc/bind/named.conf.options
+    owner: bind
+    group: bind
+    mode: '0644'
+    validate: 'named-checkconf %s'
+  become: yes
+  notify: restart bind9
+
+- name: Configurer named.conf.local
+  template:
+    src: named.conf.local.j2
+    dest: /etc/bind/named.conf.local
+    owner: bind
+    group: bind
+    mode: '0644'
+    validate: 'named-checkconf %s'
+  become: yes
+  notify: restart bind9
+
+- name: Générer la zone directe
+  template:
+    src: zone-forward.j2
+    dest: "/etc/bind/zones/db.{{ dns_domain }}"
+    owner: bind
+    group: bind
+    mode: '0644'
+  become: yes
+  notify: reload bind9
+
+- name: Générer la zone inverse
+  template:
+    src: zone-reverse.j2
+    dest: "/etc/bind/zones/db.{{ dns_network }}"
+    owner: bind
+    group: bind
+    mode: '0644'
+  become: yes
+  notify: reload bind9
+
+- name: S'assurer que Bind9 est démarré et activé
+  systemd:
+    name: bind9
+    state: started
+    enabled: yes
+  become: yes
+
+- name: Vérifier la zone directe
+  command: "named-checkzone {{ dns_domain }} /etc/bind/zones/db.{{ dns_domain }}"
+  become: yes
+  changed_when: false
+  register: zone_check_forward
+
+- name: Vérifier la zone inverse
+  command: "named-checkzone {{ dns_reverse_zone }} /etc/bind/zones/db.{{ dns_network }}"
+  become: yes
+  changed_when: false
+  register: zone_check_reverse
+
+- name: Afficher le résultat de la vérification zone directe
+  debug:
+    var: zone_check_forward.stdout_lines
+
+- name: Afficher le résultat de la vérification zone inverse
+  debug:
+    var: zone_check_reverse.stdout_lines

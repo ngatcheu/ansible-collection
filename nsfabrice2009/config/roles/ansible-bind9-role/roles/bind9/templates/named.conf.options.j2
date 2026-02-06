@@ -1,0 +1,30 @@
+options {
+    directory "/var/cache/bind";
+    
+    // Réseaux autorisés à interroger ce DNS
+    allow-query { 
+{% for network in dns_allowed_networks %}
+        {{ network }};
+{% endfor %}
+    };
+    
+    // Forwarders DNS pour les requêtes externes
+    forwarders {
+{% for forwarder in dns_forwarders %}
+        {{ forwarder }};
+{% endfor %}
+    };
+    
+    // Activer la récursion
+    recursion yes;
+    
+    // Écouter sur toutes les interfaces IPv4
+    listen-on { any; };
+    
+    // Validation DNSSEC
+    dnssec-validation auto;
+    
+    // Configuration standard
+    auth-nxdomain no;    # conform to RFC1035
+    listen-on-v6 { any; };
+};

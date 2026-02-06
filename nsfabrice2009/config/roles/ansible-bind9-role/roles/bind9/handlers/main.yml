@@ -1,0 +1,10 @@
+---
+- name: restart bind9
+  systemd:
+    name: bind9
+    state: restarted
+  become: yes
+
+- name: reload bind9
+  command: rndc reload
+  become: yes

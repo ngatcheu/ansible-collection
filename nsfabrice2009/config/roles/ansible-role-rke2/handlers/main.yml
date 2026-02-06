@@ -1,0 +1,22 @@
+---
+
+- name: Redémarrer keepalived
+  ansible.builtin.service:
+    name: keepalived
+    state: restarted
+
+- name: Redémarrer systemd-sysctl
+  ansible.builtin.service:
+    state: restarted
+    name: systemd-sysctl
+
+- name: Vider les gestionnaires
+  ansible.builtin.meta: flush_handlers
+
+- name: Fichier de configuration modifié
+  ansible.builtin.set_fact:
+    rke2_restart_needed: true
+
+- name: Service (re)démarré
+  ansible.builtin.set_fact:
+    rke2_restart_needed: false

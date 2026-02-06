@@ -1,0 +1,19 @@
+;
+; Zone inverse {{ dns_reverse_zone }}
+; Généré par Ansible le {{ ansible_date_time.iso8601 }}
+;
+$TTL    604800
+@       IN      SOA     ns1.{{ dns_domain }}. admin.{{ dns_domain }}. (
+                              {{ ansible_date_time.epoch }}         ; Serial (timestamp)
+                         604800         ; Refresh (1 semaine)
+                          86400         ; Retry (1 jour)
+                        2419200         ; Expire (4 semaines)
+                         604800 )       ; Negative Cache TTL (1 semaine)
+;
+; Serveurs de noms
+@       IN      NS      ns1.{{ dns_domain }}.
+
+; Enregistrements PTR (résolution inverse IP -> nom)
+{% for record in dns_records %}
+{{ "%-3s"|format(record.ip.split('.')[-1]) }} IN      PTR     {{ record.name }}.{{ dns_domain }}.
+{% endfor %}

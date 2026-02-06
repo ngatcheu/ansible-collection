@@ -1,0 +1,37 @@
+---
+- name: Tester le serveur DNS
+  hosts: localhost
+  gather_facts: no
+  connection: local
+  
+  vars:
+    dns_server: 192.168.1.10
+    dns_domain: lab.local
+    test_domains:
+      - ns1
+      - proxmox
+      - nas
+      - docker
+  
+  tasks:
+    - name: Tester les résolutions DNS
+      command: "dig @{{ dns_server }} {{ item }}.{{ dns_domain }} +short"
+      loop: "{{ test_domains }}"
+      register: results
+      changed_when: false
+      failed_when: false
+      
+    - name: Afficher les résultats
+      debug:
+        msg: "{{ item.item }}.{{ dns_domain }} => {{ item.stdout | default('ÉCHEC') }}"
+      loop: "{{ results.results }}"
+      
+    - name: Tester la résolution inverse
+      command: "dig @{{ dns_server }} -x 192.168.1.20 +short"
+      register: reverse_test
+      changed_when: false
+      failed_when: false
+      
+    - name: Afficher le résultat de la résolution inverse
+      debug:
+        msg: "192.168.1.20 => {{ reverse_test.stdout | default('ÉCHEC') }}"

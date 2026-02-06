@@ -1,0 +1,7 @@
+---
+# Variables par défaut du rôle bind9
+# Ces variables peuvent être surchargées dans group_vars ou host_vars
+
+# bind9_package_state: present
+# bind9_service_state: started
+# bind9_service_enabled: yes

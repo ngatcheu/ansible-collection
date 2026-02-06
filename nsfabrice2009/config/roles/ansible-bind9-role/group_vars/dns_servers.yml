@@ -1,0 +1,37 @@
+---
+# Configuration du domaine DNS
+dns_domain: "lab.local"
+dns_network: "192.168.1"
+dns_reverse_zone: "1.168.192.in-addr.arpa"
+
+# Forwarders DNS (serveurs DNS externes)
+dns_forwarders:
+  - 1.1.1.1
+  - 8.8.8.8
+
+# Réseaux autorisés à interroger ce DNS
+dns_allowed_networks:
+  - localhost
+  - 192.168.1.0/24
+
+# Enregistrements DNS (type A)
+dns_records:
+  - name: ns1
+    ip: 192.168.1.10
+    type: server
+  - name: proxmox
+    ip: 192.168.1.20
+    type: server
+  - name: nas
+    ip: 192.168.1.30
+    type: server
+  - name: docker
+    ip: 192.168.1.40
+    type: server
+
+# Enregistrements CNAME (alias)
+dns_cname_records:
+  - name: www
+    target: proxmox
+  - name: storage
+    target: nas

@@ -1,0 +1,11 @@
+*.retry
+*.log
+.vault_pass
+.vault_password
+vault_password.txt
+group_vars/*/vault.yml
+host_vars/*/vault.yml
+*.swp
+*.swo
+*~
+.DS_Store

@@ -1,0 +1,26 @@
+---
+- name: Configuration du serveur DNS Bind9
+  hosts: dns_servers
+  become: yes
+  
+  roles:
+    - bind9
+  
+  post_tasks:
+    - name: Attendre que Bind9 soit complètement démarré
+      wait_for:
+        port: 53
+        host: localhost
+        timeout: 30
+      
+    - name: Tester la résolution DNS locale
+      command: "dig @localhost {{ item.name }}.{{ dns_domain }} +short"
+      loop: "{{ dns_records }}"
+      register: dns_test
+      changed_when: false
+      failed_when: false
+      
+    - name: Afficher les résultats des tests DNS
+      debug:
+        msg: "{{ item.item.name }}.{{ dns_domain }} => {{ item.stdout | default('ERREUR') }}"
+      loop: "{{ dns_test.results }}"
