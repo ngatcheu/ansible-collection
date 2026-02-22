@@ -1,0 +1,122 @@
+---
+- name: Charger les variables spécifiques à l'OS
+  ansible.builtin.include_vars: "{{ ansible_os_family }}-vars.yml"
+
+- name: Inclure les tâches d'installation spécifiques à l'OS
+  ansible.builtin.include_tasks: "{{ ansible_os_family }}.yml"
+
+- name: Démarrer le service slapd
+  ansible.builtin.service:
+    name: slapd
+    state: started
+    enabled: true
+
+- name: Générer le mot de passe chiffré
+  ansible.builtin.command: slappasswd -s "{{ ldap_bind_pw }}"
+  register: ldap_encripted_password
+  changed_when: false
+  no_log: true
+
+- name: Copier le template de configuration de la base de données
+  ansible.builtin.template:
+    src: db.ldif
+    dest: /tmp/db.ldif
+    mode: '0600'
+
+- name: Appliquer le template de configuration dans LDAP
+  ansible.builtin.command: ldapmodify -Y EXTERNAL -H ldapi:/// -f /tmp/db.ldif
+  changed_when: true
+
+- name: Charger les schémas LDAP (les doublons sont ignorés pour l'idempotence)
+  ansible.builtin.command: "ldapadd -Y EXTERNAL -H ldapi:/// -f {{ schema_path }}/{{ item }}"
+  register: ldap_result_code
+  failed_when: ldap_result_code.rc not in [0, 80]
+  changed_when: ldap_result_code.rc == 0
+  loop:
+    - cosine.ldif
+    - nis.ldif
+    - inetorgperson.ldif
+
+- name: Créer l'entrée racine de l'annuaire
+  community.general.ldap_entry:
+    server_uri: "{{ ldap_server_uri }}"
+    bind_dn: "{{ ldap_basedn }}"
+    bind_pw: "{{ ldap_bind_pw }}"
+    dn: "{{ ldap_basedn }}"
+    objectClass:
+      - top
+      - domain
+
+- name: Créer les unités organisationnelles (groups et people)
+  community.general.ldap_entry:
+    server_uri: "{{ ldap_server_uri }}"
+    bind_dn: "{{ ldap_basedn }}"
+    bind_pw: "{{ ldap_bind_pw }}"
+    dn: "ou={{ item }},{{ ldap_basedn }}"
+    objectClass:
+      - organizationalUnit
+      - top
+  loop:
+    - groups
+    - people
+
+- name: Charger les utilisateurs dans l'annuaire
+  community.general.ldap_entry:
+    server_uri: "{{ ldap_server_uri }}"
+    bind_dn: "{{ ldap_basedn }}"
+    bind_pw: "{{ ldap_bind_pw }}"
+    dn: "uid={{ item.key }},ou=people,{{ ldap_basedn }}"
+    objectClass:
+      - person
+      - organizationalPerson
+      - inetOrgPerson
+      - top
+    attributes:
+      cn: "{{ item.value.cn }}"
+      givenname: "{{ item.value.givenname }}"
+      sn: "{{ item.value.sn }}"
+      uid: "{{ item.key }}"
+      mail: "{{ item.value.mail }}"
+      userpassword: "{{ item.value.userpassword }}"
+  loop: "{{ ldap_users | dict2items }}"
+  no_log: true
+
+- name: Créer les groupes dans l'annuaire
+  community.general.ldap_entry:
+    server_uri: "{{ ldap_server_uri }}"
+    bind_dn: "{{ ldap_basedn }}"
+    bind_pw: "{{ ldap_bind_pw }}"
+    dn: "cn={{ item.name }},ou=groups,{{ ldap_basedn }}"
+    objectClass:
+      - groupOfUniqueNames
+      - top
+    attributes:
+      uniqueMember: "uid=dummy,ou=people,{{ ldap_basedn }}"
+  loop: "{{ ldap_groups }}"
+
+- name: Ajouter les membres dans les groupes
+  community.general.ldap_attrs:
+    server_uri: "{{ ldap_server_uri }}"
+    bind_dn: "{{ ldap_basedn }}"
+    bind_pw: "{{ ldap_bind_pw }}"
+    dn: "cn={{ item.0.name }},ou=groups,{{ ldap_basedn }}"
+    attributes:
+      uniqueMember: "uid={{ item.1 }},ou=people,{{ ldap_basedn }}"
+    state: present
+  loop: "{{ ldap_groups | subelements('members') }}"
+
+- name: Supprimer le membre factice des groupes
+  community.general.ldap_attrs:
+    server_uri: "{{ ldap_server_uri }}"
+    bind_dn: "{{ ldap_basedn }}"
+    bind_pw: "{{ ldap_bind_pw }}"
+    dn: "cn={{ item.name }},ou=groups,{{ ldap_basedn }}"
+    attributes:
+      uniqueMember: "uid=dummy,ou=people,{{ ldap_basedn }}"
+    state: absent
+  loop: "{{ ldap_groups }}"
+
+- name: Redémarrer le service slapd
+  ansible.builtin.service:
+    name: slapd
+    state: restarted

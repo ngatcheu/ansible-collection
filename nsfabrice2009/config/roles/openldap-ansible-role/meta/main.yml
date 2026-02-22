@@ -1,0 +1,39 @@
+galaxy_info:
+  author: Luis Novo
+  description: Ce rôle installe OpenLDAP et charge des données d'exemple
+  company: NSFabrice2009
+
+  # Si le suivi des problèmes pour ce rôle n'est pas sur GitHub, décommentez
+  # la ligne suivante et fournissez une valeur
+  # issue_tracker_url: http://example.com/issue/tracker
+
+  # Licences suggérées :
+  # - BSD (par défaut)
+  # - MIT
+  # - GPLv2
+  # - GPLv3
+  # - Apache
+  # - CC-BY
+  license: "Simplified BSD License"
+
+  min_ansible_version: 2.3.2.0
+
+  # Si ce rôle est activé pour les conteneurs, indiquez la version minimale d'Ansible Container.
+  # min_ansible_container_version:
+
+  # Spécifiez optionnellement la branche que Galaxy utilisera pour accéder au dépôt GitHub.
+  # Lors de l'installation du rôle, si aucun tag n'est disponible, Galaxy utilisera cette branche.
+  #github_branch:
+
+  # platforms est une liste de plateformes, chaque plateforme a un nom et une liste de versions.
+  platforms:
+    - name: EL
+      versions:
+        - "6"
+        - "7"
+
+  galaxy_tags:
+    - openldap
+
+# Liste des dépendances du rôle (aucune pour ce rôle)
+dependencies: []

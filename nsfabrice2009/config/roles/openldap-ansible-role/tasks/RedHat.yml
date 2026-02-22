@@ -1,0 +1,11 @@
+---
+- name: Installer les paquets requis (RedHat/CentOS)
+  ansible.builtin.yum:
+    state: present
+    validate_certs: no
+    disable_gpg_check: yes
+    name:
+      - openldap
+      - openldap-servers
+      - openldap-clients
+      - python-ldap

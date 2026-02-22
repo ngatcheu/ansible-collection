@@ -1,0 +1,9 @@
+---
+# Type de base de données LDAP pour RedHat/CentOS (hdb = Hierarchical DB)
+dbtype: "{2}hdb"
+
+# Chemin vers le fichier de configuration de la base de données
+dbconfig_path: /usr/share/openldap-servers/DB_CONFIG.example
+
+# Chemin vers les schémas LDAP
+schema_path: /etc/openldap/schema

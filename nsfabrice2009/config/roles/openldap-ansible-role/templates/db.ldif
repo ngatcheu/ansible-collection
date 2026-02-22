@@ -1,0 +1,20 @@
+# Configuration de la base de données OpenLDAP
+# Ce fichier est appliqué via ldapmodify sur l'interface d'administration interne (ldapi:///)
+
+# Définir le suffixe (DN racine de l'annuaire)
+dn: olcDatabase={{dbtype}},cn=config
+changetype: modify
+replace: olcSuffix
+olcSuffix: {{ldap_basedn}}
+
+# Définir le DN administrateur (compte root de l'annuaire)
+dn: olcDatabase={{dbtype}},cn=config
+changetype: modify
+replace: olcRootDN
+olcRootDN: {{ldap_basedn}}
+
+# Définir le mot de passe chiffré de l'administrateur
+dn: olcDatabase={{dbtype}},cn=config
+changetype: modify
+replace: olcRootPW
+olcRootPW: {{ldap_encripted_password.stdout}}

@@ -1,0 +1,9 @@
+---
+# Type de base de données LDAP pour Debian/Ubuntu (mdb = Memory-mapped DB)
+dbtype: "{1}mdb"
+
+# Chemin vers le fichier de configuration de la base de données
+dbconfig_path: /usr/share/slapd/DB_CONFIG
+
+# Chemin vers les schémas LDAP
+schema_path: /etc/ldap/schema
