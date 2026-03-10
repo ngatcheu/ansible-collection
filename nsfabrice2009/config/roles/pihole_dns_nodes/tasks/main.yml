@@ -1,0 +1,28 @@
+---
+- name: Désactiver la gestion du DNS par NetworkManager
+  ansible.builtin.copy:
+    dest: /etc/NetworkManager/conf.d/no-dns.conf
+    mode: '0644'
+    content: |
+      [main]
+      dns=none
+  notify: Redémarrer NetworkManager
+
+- name: Rendre resolv.conf modifiable si immuable
+  ansible.builtin.file:
+    path: /etc/resolv.conf
+    attr: -i
+  failed_when: false
+
+- name: Configurer resolv.conf pour utiliser Pi-hole
+  ansible.builtin.copy:
+    dest: /etc/resolv.conf
+    mode: '0644'
+    content: |
+      nameserver {{ pihole_ip }}
+      nameserver {{ dns_fallback }}
+
+- name: Rendre resolv.conf immuable
+  ansible.builtin.file:
+    path: /etc/resolv.conf
+    attr: +i

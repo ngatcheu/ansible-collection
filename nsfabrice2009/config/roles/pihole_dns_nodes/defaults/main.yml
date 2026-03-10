@@ -1,0 +1,4 @@
+---
+# Valeurs par défaut — surchargées par group_vars/cluster_nodes.yml
+pihole_ip: 192.168.1.119
+dns_fallback: 8.8.8.8

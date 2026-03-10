@@ -1,0 +1,8 @@
+---
+# Valeurs par défaut — surchargées par group_vars/dns_servers.yml
+pihole_password: "changeme"
+pihole_interface: eth0
+pihole_dns_1: 8.8.8.8
+pihole_dns_2: 8.8.4.4
+pihole_cache_size: 10000
+dns_records: []

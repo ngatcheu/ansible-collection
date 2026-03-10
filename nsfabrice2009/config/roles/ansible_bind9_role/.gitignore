@@ -9,3 +9,5 @@ host_vars/*/vault.yml
 *.swo
 *~
 .DS_Store
+auto.vars
+auto.tfvars

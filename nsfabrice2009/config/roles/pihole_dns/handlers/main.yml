@@ -1,0 +1,5 @@
+---
+- name: Redémarrer Pi-hole DNS
+  ansible.builtin.command:
+    cmd: pihole restartdns
+  changed_when: true

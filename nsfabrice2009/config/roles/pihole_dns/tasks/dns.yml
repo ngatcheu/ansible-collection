@@ -1,0 +1,30 @@
+---
+- name: Ajouter pi.hole dans /etc/hosts
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    line: "127.0.0.1 pi.hole"
+    state: present
+
+- name: Configurer les enregistrements DNS dans custom.list
+  ansible.builtin.copy:
+    dest: /etc/pihole/custom.list
+    mode: '0644'
+    owner: pihole
+    group: pihole
+    content: |
+      {% for record in dns_records %}
+      {{ record.ip }} {{ record.host }}
+      {% endfor %}
+  notify: Redémarrer Pi-hole DNS
+
+- name: Créer le fichier hosts personnalisé pour Pi-hole v6
+  ansible.builtin.copy:
+    dest: /etc/pihole/hosts/custom.hosts
+    mode: '0644'
+    owner: pihole
+    group: pihole
+    content: |
+      {% for record in dns_records %}
+      {{ record.ip }} {{ record.host }}
+      {% endfor %}
+  notify: Redémarrer Pi-hole DNS

@@ -1,0 +1,13 @@
+---
+- name: Vérifier si Pi-hole est installé
+  ansible.builtin.stat:
+    path: /usr/local/bin/pihole
+  register: pihole_installed
+
+- name: Installer Pi-hole
+  when: not pihole_installed.stat.exists
+  ansible.builtin.include_tasks: install.yml
+
+- name: Configurer les enregistrements DNS
+  ansible.builtin.include_tasks: dns.yml
+  tags: dns
