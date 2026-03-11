@@ -4,6 +4,7 @@
     path: /etc/hosts
     line: "127.0.0.1 pi.hole"
     state: present
+  tags: always
 
 - name: Configurer les enregistrements DNS dans custom.list
   ansible.builtin.copy:
@@ -16,6 +17,7 @@
       {{ record.ip }} {{ record.host }}
       {% endfor %}
   notify: Redémarrer Pi-hole DNS
+  tags: always
 
 - name: Créer le fichier hosts personnalisé pour Pi-hole v6
   ansible.builtin.copy:
@@ -28,3 +30,4 @@
       {{ record.ip }} {{ record.host }}
       {% endfor %}
   notify: Redémarrer Pi-hole DNS
+  tags: always
