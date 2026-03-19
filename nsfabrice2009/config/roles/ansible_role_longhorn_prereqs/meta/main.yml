@@ -1,0 +1,27 @@
+galaxy_info:
+  role_name: longhorn_prereqs
+  author: nsfabrice2009
+  namespace: nsfabrice2009
+  description: Install Longhorn prerequisites on Kubernetes nodes (open-iscsi, nfs-common, etc.)
+
+  license: MIT
+
+  min_ansible_version: 2.10.0
+
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy
+        - noble
+    - name: EL
+      versions:
+        - "8"
+        - "9"
+
+  galaxy_tags:
+    - kubernetes
+    - longhorn
+    - storage
+
+dependencies: []

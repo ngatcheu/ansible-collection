@@ -1,0 +1,41 @@
+---
+- name: Install Longhorn prerequisites on Debian/Ubuntu
+  ansible.builtin.apt:
+    name: "{{ longhorn_prereqs_packages_debian }}"
+    state: present
+    update_cache: true
+  when: ansible_os_family == "Debian"
+
+- name: Install Longhorn prerequisites on RedHat/Rocky
+  ansible.builtin.dnf:
+    name: "{{ longhorn_prereqs_packages_redhat }}"
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Enable and start iscsid
+  ansible.builtin.systemd:
+    name: iscsid
+    enabled: "{{ longhorn_prereqs_iscsid_enabled }}"
+    state: started
+  when: longhorn_prereqs_iscsid_enabled | bool
+
+- name: Verify required tools are present
+  ansible.builtin.command: "which {{ item }}"
+  loop:
+    - bash
+    - curl
+    - findmnt
+    - grep
+    - awk
+    - blkid
+  changed_when: false
+
+- name: Verify iscsid is running
+  ansible.builtin.command: systemctl is-active iscsid
+  changed_when: false
+  failed_when: false
+  register: longhorn_iscsid_status
+
+- name: Show iscsid status
+  ansible.builtin.debug:
+    msg: "iscsid status: {{ longhorn_iscsid_status.stdout }}"

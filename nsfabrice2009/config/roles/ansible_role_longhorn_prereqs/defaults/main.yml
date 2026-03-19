@@ -1,0 +1,15 @@
+---
+# Packages requis pour Longhorn sur Debian/Ubuntu
+longhorn_prereqs_packages_debian:
+  - open-iscsi
+  - nfs-common
+  - util-linux
+
+# Packages requis pour Longhorn sur RedHat/Rocky/CentOS
+longhorn_prereqs_packages_redhat:
+  - iscsi-initiator-utils
+  - nfs-utils
+  - util-linux
+
+# Activer et démarrer le daemon iscsid
+longhorn_prereqs_iscsid_enabled: true
