@@ -1,0 +1,8 @@
+---
+- name: Exporter la CA depuis le cluster Kubernetes
+  ansible.builtin.import_tasks: export.yml
+  when: homelab_ca_mode == 'export'
+
+- name: Distribuer la CA aux nodes
+  ansible.builtin.import_tasks: distribute.yml
+  when: homelab_ca_mode == 'distribute'

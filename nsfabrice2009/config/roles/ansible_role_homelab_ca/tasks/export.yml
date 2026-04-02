@@ -1,0 +1,52 @@
+---
+- name: Créer le répertoire temporaire sur le master
+  ansible.builtin.file:
+    path: "{{ homelab_ca_remote_tmp_dir }}"
+    state: directory
+    mode: '0700'
+
+- name: Extraire tls.crt depuis le secret Kubernetes
+  ansible.builtin.shell: >
+    {{ homelab_ca_kubectl_bin }} get secret {{ homelab_ca_secret_name }}
+    -n {{ homelab_ca_namespace }}
+    --kubeconfig {{ homelab_ca_kubeconfig }}
+    -o jsonpath='{.data.tls\.crt}' | base64 -d > {{ homelab_ca_remote_tmp_dir }}/{{ homelab_ca_local_cert_file }}
+  changed_when: true
+
+- name: Extraire tls.key depuis le secret Kubernetes
+  ansible.builtin.shell: >
+    {{ homelab_ca_kubectl_bin }} get secret {{ homelab_ca_secret_name }}
+    -n {{ homelab_ca_namespace }}
+    --kubeconfig {{ homelab_ca_kubeconfig }}
+    -o jsonpath='{.data.tls\.key}' | base64 -d > {{ homelab_ca_remote_tmp_dir }}/{{ homelab_ca_local_key_file }}
+  changed_when: true
+  no_log: true
+
+- name: Vérifier le certificat CA extrait
+  ansible.builtin.command: >
+    openssl x509 -in {{ homelab_ca_remote_tmp_dir }}/{{ homelab_ca_local_cert_file }}
+    -noout -subject -issuer -dates
+  register: homelab_ca_cert_info
+  changed_when: false
+
+- name: Afficher les informations du certificat
+  ansible.builtin.debug:
+    msg: "{{ homelab_ca_cert_info.stdout_lines }}"
+
+- name: Rapatrier le certificat CA en local
+  ansible.builtin.fetch:
+    src: "{{ homelab_ca_remote_tmp_dir }}/{{ homelab_ca_local_cert_file }}"
+    dest: "{{ homelab_ca_local_dir }}/{{ homelab_ca_local_cert_file }}"
+    flat: true
+
+- name: Rapatrier la clé privée CA en local
+  ansible.builtin.fetch:
+    src: "{{ homelab_ca_remote_tmp_dir }}/{{ homelab_ca_local_key_file }}"
+    dest: "{{ homelab_ca_local_dir }}/{{ homelab_ca_local_key_file }}"
+    flat: true
+  no_log: true
+
+- name: Supprimer les fichiers temporaires sur le master
+  ansible.builtin.file:
+    path: "{{ homelab_ca_remote_tmp_dir }}"
+    state: absent

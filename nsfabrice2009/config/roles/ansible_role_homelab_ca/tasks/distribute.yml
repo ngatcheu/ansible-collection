@@ -1,0 +1,33 @@
+---
+- name: Copier le certificat CA sur RedHat/Rocky
+  ansible.builtin.copy:
+    src: "{{ homelab_ca_local_dir }}/{{ homelab_ca_local_cert_file }}"
+    dest: "{{ homelab_ca_dest_redhat }}"
+    mode: '0644'
+  when: ansible_os_family == "RedHat"
+  notify: Update ca-trust RedHat
+
+- name: Copier le certificat CA sur Debian/Ubuntu
+  ansible.builtin.copy:
+    src: "{{ homelab_ca_local_dir }}/{{ homelab_ca_local_cert_file }}"
+    dest: "{{ homelab_ca_dest_debian }}"
+    mode: '0644'
+  when: ansible_os_family == "Debian"
+  notify: Update ca-certificates Debian
+
+- name: Forcer les handlers immédiatement
+  ansible.builtin.meta: flush_handlers
+
+- name: Vérifier que le certificat est bien reconnu
+  ansible.builtin.command: >
+    openssl verify -CAfile /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem
+    {{ homelab_ca_dest_redhat }}
+  changed_when: false
+  when: ansible_os_family == "RedHat"
+  ignore_errors: true
+  register: homelab_ca_verify
+
+- name: Afficher le résultat de la vérification
+  ansible.builtin.debug:
+    msg: "{{ homelab_ca_verify.stdout | default('vérification ignorée') }}"
+  when: ansible_os_family == "RedHat"

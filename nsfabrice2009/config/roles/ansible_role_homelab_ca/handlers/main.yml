@@ -1,0 +1,8 @@
+---
+- name: Update ca-trust RedHat
+  ansible.builtin.command: update-ca-trust
+  changed_when: true
+
+- name: Update ca-certificates Debian
+  ansible.builtin.command: update-ca-certificates
+  changed_when: true

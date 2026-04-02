@@ -1,0 +1,31 @@
+galaxy_info:
+  role_name: homelab_ca
+  author: nsfabrice2009
+  namespace: nsfabrice2009
+  description: >
+    Exporte le certificat CA homelab depuis un secret Kubernetes (cert-manager)
+    et le distribue dans le trust store des nodes (RedHat/Debian).
+
+  license: MIT
+
+  min_ansible_version: "2.14"
+
+  platforms:
+    - name: EL
+      versions:
+        - "8"
+        - "9"
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy
+        - noble
+
+  galaxy_tags:
+    - kubernetes
+    - pki
+    - tls
+    - certmanager
+    - rke2
+
+dependencies: []

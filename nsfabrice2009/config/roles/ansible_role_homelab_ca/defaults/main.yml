@@ -1,0 +1,22 @@
+---
+# Secret Kubernetes contenant la CA homelab
+homelab_ca_secret_name: homelab-ca-secret
+homelab_ca_namespace: cert-manager
+
+# Chemins kubectl/kubeconfig sur le master RKE2
+homelab_ca_kubeconfig: /etc/rancher/rke2/rke2.yaml
+homelab_ca_kubectl_bin: /var/lib/rancher/rke2/bin/kubectl
+
+# Répertoire temporaire sur le master pour l'export
+homelab_ca_remote_tmp_dir: /tmp/homelab-ca-export
+
+# Répertoire local (controller Ansible) où sont sauvegardés cert + clé
+homelab_ca_local_dir: "{{ playbook_dir }}"
+
+# Nom des fichiers locaux générés
+homelab_ca_local_cert_file: homelab-ca.crt
+homelab_ca_local_key_file: homelab-ca.key
+
+# Chemins de destination sur les nodes selon l'OS
+homelab_ca_dest_redhat: /etc/pki/ca-trust/source/anchors/homelab-ca.crt
+homelab_ca_dest_debian: /usr/local/share/ca-certificates/homelab-ca.crt
