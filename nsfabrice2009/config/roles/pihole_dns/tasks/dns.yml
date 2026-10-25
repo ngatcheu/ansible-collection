@@ -31,3 +31,37 @@
       {% endfor %}
   notify: Redémarrer Pi-hole DNS
   tags: always
+
+- name: Détecter Pi-hole v6
+  ansible.builtin.stat:
+    path: /etc/pihole/pihole.toml
+  register: pihole_v6_config
+  tags: always
+
+# Pi-hole v6 ignore /etc/dnsmasq.d tant que misc.etc_dnsmasq_d est à false.
+- name: Lire misc.etc_dnsmasq_d (Pi-hole v6)
+  ansible.builtin.command:
+    cmd: pihole-FTL --config misc.etc_dnsmasq_d
+  when: pihole_v6_config.stat.exists and dns_wildcards | length > 0
+  register: pihole_dnsmasq_d
+  changed_when: false
+  tags: always
+
+- name: Activer la lecture de /etc/dnsmasq.d (Pi-hole v6)
+  ansible.builtin.command:
+    cmd: pihole-FTL --config misc.etc_dnsmasq_d true
+  when: pihole_dnsmasq_d.stdout is defined and pihole_dnsmasq_d.stdout | trim != 'true'
+  changed_when: true
+  notify: Redémarrer Pi-hole DNS
+  tags: always
+
+- name: Configurer les wildcards DNS
+  ansible.builtin.copy:
+    dest: /etc/dnsmasq.d/05-homelab-wildcards.conf
+    mode: '0644'
+    content: |
+      {% for wildcard in dns_wildcards %}
+      address=/{{ wildcard.domain }}/{{ wildcard.ip }}
+      {% endfor %}
+  notify: Redémarrer Pi-hole DNS
+  tags: always

@@ -6,3 +6,5 @@ pihole_dns_1: 8.8.8.8
 pihole_dns_2: 8.8.4.4
 pihole_cache_size: 10000
 dns_records: []
+# Wildcards DNS : [{ domain: apps.cluster.example, ip: 1.2.3.4 }]
+dns_wildcards: []
