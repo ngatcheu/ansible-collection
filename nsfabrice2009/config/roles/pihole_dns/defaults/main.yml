@@ -6,3 +6,5 @@ pihole_dns_1: 8.8.8.8
 pihole_dns_2: 8.8.4.4
 pihole_cache_size: 10000
 dns_records: []
+# Wildcards : le domaine ET tous ses sous-domaines, ex. { domain: apps.homelab.local, ip: 192.168.1.211 }
+dns_wildcards: []
