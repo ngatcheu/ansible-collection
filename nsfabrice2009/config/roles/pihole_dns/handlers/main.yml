@@ -1,5 +1,7 @@
 ---
+# Un vrai redémarrage de FTL : `pihole restartdns` (v6) ne relit pas /etc/pihole/hosts,
+# et la relecture inotify peut échouer (Permission denied) pendant l'écriture du fichier.
 - name: Redémarrer Pi-hole DNS
-  ansible.builtin.command:
-    cmd: pihole restartdns
-  changed_when: true
+  ansible.builtin.systemd:
+    name: pihole-FTL
+    state: restarted
